@@ -1,0 +1,5 @@
+include README.md
+include LICENSE
+include pyproject.toml
+include requirements.txt
+include mcp-config.example.json

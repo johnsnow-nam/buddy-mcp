@@ -10,12 +10,18 @@ readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"
 authors = [
-  { name = "Elio MCP Server contributors" }
+  { name = "elio robotics", email = "caram88@mobilian.biz" }
+]
+maintainers = [
+  { name = "johnsnow-nam" }
 ]
 keywords = ["mcp", "elio", "serial", "bluetooth", "motor", "servo"]
+urls = { Homepage = "https://github.com/johnsnow-nam/elio-mcp-server", Repository = "https://github.com/johnsnow-nam/elio-mcp-server", "Bug Tracker" = "https://github.com/johnsnow-nam/elio-mcp-server/issues" }
 classifiers = [
   "Development Status :: 4 - Beta",
   "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",

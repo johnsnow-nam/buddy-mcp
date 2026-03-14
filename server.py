@@ -11,6 +11,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import serial
+import serial.tools.list_ports
 from mcp.server.fastmcp import FastMCP
 
 from comm.eliochannel import eliochannel
@@ -60,10 +61,29 @@ def _disconnect():
 
 
 @mcp.tool()
+def elio_list_ports() -> str:
+    """현재 PC에 있는 시리얼(COM) 포트 목록을 반환합니다. Windows는 COM3·COM5, macOS는 /dev/cu.xxx, Linux는 /dev/ttyUSB0 등. 사용자가 동글/보드에 맞는 포트를 골라 elio_connect(port)에 넣으면 됩니다."""
+    try:
+        ports = serial.tools.list_ports.comports()
+        if not ports:
+            return "사용 가능한 시리얼 포트가 없습니다. 동글을 연결했는지 확인하세요."
+        lines = []
+        for p in ports:
+            desc = (p.description or "").strip() or "-"
+            lines.append(f"  {p.device}\t{desc}")
+        return "사용 가능한 포트:\n" + "\n".join(lines) + "\n\n연결할 때: elio_connect(port) 에 위 포트 이름(예: COM3, /dev/cu.USB-Serial)을 넣으세요."
+    except Exception as e:
+        return f"포트 목록 조회 실패: {e}"
+
+
+@mcp.tool()
 def elio_connect(port: str) -> str:
-    """엘리오 보드에 시리얼(블루투스 동글)로 연결합니다. port 예: /dev/cu.USB-Serial"""
+    """엘리오 보드에 시리얼(블루투스 동글)로 연결합니다. port는 elio_list_ports()로 확인한 값 사용. Windows: COM3, COM5 / macOS: /dev/cu.USB-Serial, /dev/cu.Bluetooth-Incoming-Port / Linux: /dev/ttyUSB0, /dev/ttyACM0"""
     global _channel, _protocol
     _disconnect()
+    port = port.strip()
+    if not port:
+        return "포트를 지정해 주세요. elio_list_ports() 로 목록을 확인할 수 있습니다."
     os.environ["ELIO_PORT"] = port
     try:
         _get_protocol()
