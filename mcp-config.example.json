@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "elio": {
+      "command": "/Users/seokhee/mcp-servers/elio-mcp-server/.venv/bin/python",
+      "args": ["/Users/seokhee/mcp-servers/elio-mcp-server/server.py"],
+      "env": {
+        "ELIO_PORT": "/dev/cu.USB-Serial"
+      }
+    }
+  }
+}

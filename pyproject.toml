@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "elio-mcp-server"
+version = "0.1.0"
+description = "MCP server for Elio/LAO board over Bluetooth serial (DC motor, servo, IO, sensors)"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [
+  { name = "Elio MCP Server contributors" }
+]
+keywords = ["mcp", "elio", "serial", "bluetooth", "motor", "servo"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+  "mcp>=1.0.0",
+  "pyserial>=3.5",
+]
+
+[project.scripts]
+elio-mcp = "server:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["comm*"]
+
+[tool.setuptools]
+py-modules = ["server"]
