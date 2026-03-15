@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "elio-mcp-server"
 version = "0.1.0"
-description = "MCP server for Elio/LAO board over Bluetooth serial (DC motor, servo, IO, sensors)"
+description = "MCP server for ELIO board over Bluetooth serial (DC motor, servo, IO, sensors)"
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"
