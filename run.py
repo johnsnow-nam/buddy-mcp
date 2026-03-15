@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Elio MCP Server launcher (Mac / Windows / Linux 공통).
+Buddy MCP Server launcher (Mac / Windows / Linux 공통).
 프로젝트 가상환경(.venv)을 만들고 그 안의 Python으로 server.py를 실행합니다.
 MCP 설정: command = python 실행 파일 경로, args = [이 run.py 의 절대 경로]
 """
@@ -19,7 +19,7 @@ def main() -> None:
     if "--print-mcp-config" in sys.argv:
         config = {
             "mcpServers": {
-                "elio": {
+                "buddy": {
                     "command": sys.executable,
                     "args": [run_py],
                 }

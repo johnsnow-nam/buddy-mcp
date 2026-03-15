@@ -5,7 +5,7 @@ UDP = 0x30
 CMD_EXECUTE = 0x01
 
 
-class ElioProtocol(Protocol):
+class BuddyProtocol(Protocol):
     def __init__(self):
         self.dc1 = 0
         self.dc2 = 0

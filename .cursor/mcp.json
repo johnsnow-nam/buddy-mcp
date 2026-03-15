@@ -1,8 +1,8 @@
 {
   "mcpServers": {
-    "elio": {
+    "buddy": {
       "command": "python3",
-      "args": ["/path/to/elio-mcp-server/run.py"]
+      "args": ["/path/to/buddy-mcp/run.py"]
     }
   }
 }

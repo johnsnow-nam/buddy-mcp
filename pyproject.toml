@@ -3,20 +3,20 @@ requires = ["setuptools>=61", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "elio-mcp-server"
+name = "buddy-mcp-server"
 version = "0.1.0"
-description = "MCP server for ELIO board over Bluetooth serial (DC motor, servo, IO, sensors)"
+description = "MCP server for compatible board over Bluetooth serial (DC motor, servo, IO, sensors)"
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"
 authors = [
-  { name = "elio robotics", email = "caram88@mobilian.biz" }
+  { name = "Buddy MCP Server", email = "caram88@mobilian.biz" }
 ]
 maintainers = [
   { name = "johnsnow-nam" }
 ]
-keywords = ["mcp", "elio", "serial", "bluetooth", "motor", "servo"]
-urls = { Homepage = "https://github.com/johnsnow-nam/elio-mcp-server", Repository = "https://github.com/johnsnow-nam/elio-mcp-server", "Bug Tracker" = "https://github.com/johnsnow-nam/elio-mcp-server/issues" }
+keywords = ["mcp", "buddy", "serial", "bluetooth", "motor", "servo"]
+urls = { Homepage = "https://github.com/johnsnow-nam/buddy-mcp", Repository = "https://github.com/johnsnow-nam/buddy-mcp", "Bug Tracker" = "https://github.com/johnsnow-nam/buddy-mcp/issues" }
 classifiers = [
   "Development Status :: 4 - Beta",
   "Intended Audience :: Developers",
@@ -34,7 +34,7 @@ dependencies = [
 ]
 
 [project.scripts]
-elio-mcp = "server:main"
+buddy-mcp = "server:main"
 
 [tool.setuptools.packages.find]
 where = ["."]

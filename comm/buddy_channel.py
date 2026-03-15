@@ -3,11 +3,11 @@ import threading
 import serial
 
 
-class eliochannel(threading.Thread):
+class buddy_channel(threading.Thread):
     """Serial read loop and dispatch to Protocol. Thread-safe write."""
 
     def __init__(self, serial_instance, protocol_factory, packet_factory):
-        super(eliochannel, self).__init__()
+        super(buddy_channel, self).__init__()
         self.daemon = True
         self.serial = serial_instance
         self.protocol_factory = protocol_factory

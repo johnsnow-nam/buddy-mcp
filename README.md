@@ -1,9 +1,9 @@
-# Elio MCP Server
+# Buddy MCP Server
 
 **English** | [한국어](README.ko.md)
 
-MCP server for ELIO board over Bluetooth serial (DC motors, servos, IO, sensors).  
-Requires Python 3.10+, ELIO board + Bluetooth dongle.
+MCP server for compatible board over Bluetooth serial (DC motors, servos, IO, sensors).  
+Requires Python 3.10+, compatible board + Bluetooth dongle.
 
 **Run from a git clone using the project’s virtual environment.** The server is intended to be used by cloning this repo and running via `run.py`, which uses the project’s `.venv` (created automatically if missing). Do not run with global Python or other envs.
 
@@ -13,8 +13,8 @@ Requires Python 3.10+, ELIO board + Bluetooth dongle.
 
 1. **Clone** the repo:
    ```bash
-   git clone <repo-url> elio-mcp-server
-   cd elio-mcp-server
+   git clone https://github.com/johnsnow-nam/buddy-mcp.git buddy-mcp
+   cd buddy-mcp
    ```
 2. **Print MCP config** (uses project `.venv`; creates it if missing):
    ```bash
@@ -27,9 +27,9 @@ Requires Python 3.10+, ELIO board + Bluetooth dongle.
 ```json
 {
   "mcpServers": {
-    "elio": {
+    "buddy": {
       "command": "python3",
-      "args": ["/path/to/elio-mcp-server/run.py"]
+      "args": ["/path/to/buddy-mcp/run.py"]
     }
   }
 }
@@ -43,12 +43,12 @@ MCP starts the server via `run.py`; `run.py` ensures the server runs inside the 
 
 | Tool | Purpose |
 |------|--------|
-| `elio_list_ports` | List COM/serial ports |
-| `elio_connect`(port) | Connect to board (pick port from list) |
-| `elio_disconnect` | Disconnect |
-| `elio_send_dc`, `elio_send_servo`, `elio_send_io`, `elio_sensor_config` | Control motors, IO, sensors |
+| `buddy_list_ports` | List COM/serial ports |
+| `buddy_connect`(port) | Connect to board (pick port from list) |
+| `buddy_disconnect` | Disconnect |
+| `buddy_send_dc`, `buddy_send_servo`, `buddy_send_io`, `buddy_sensor_config` | Control motors, IO, sensors |
 
-No `ELIO_PORT` needed: in chat, run **elio_list_ports** → **elio_connect(port)**.
+No `BUDDY_PORT` needed: in chat, run **buddy_list_ports** → **buddy_connect(port)**.
 
 ---
 
