@@ -1,8 +1,8 @@
 {
   "mcpServers": {
     "elio": {
-      "command": "/Users/seokhee/mcp-servers/elio-mcp-server/.venv/bin/python",
-      "args": ["/Users/seokhee/mcp-servers/elio-mcp-server/server.py"]
+      "command": "python3",
+      "args": ["/Users/seokhee/mcp-servers/elio-mcp-server/run.py"]
     }
   }
 }

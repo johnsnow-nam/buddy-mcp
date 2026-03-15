@@ -4,7 +4,9 @@
 Elio MCP Server – Bluetooth(시리얼)로 엘리오 보드와 통신하는 MCP 서버.
 환경 변수 ELIO_PORT 에 시리얼 포트 지정 (예: /dev/cu.USB-Serial 또는 블루투스 SPP 포트).
 """
+import json
 import os
+import shutil
 import sys
 
 # 프로젝트 루트를 path에 추가
@@ -153,6 +155,34 @@ def elio_sensor_config(ultra: int = 0, line1: int = 0, line2: int = 0) -> str:
 
 def main():
     """MCP 서버를 stdio 전송으로 실행합니다 (pip 설치 후 `elio-mcp` 명령으로 호출)."""
+    if "--print-mcp-config" in sys.argv:
+        # 통합 launcher run.py 우선 (Mac/Windows/Linux 공통)
+        project_root = os.path.dirname(os.path.abspath(__file__))
+        run_py = os.path.normpath(os.path.join(project_root, "run.py"))
+        if os.path.isfile(run_py):
+            config = {
+                "mcpServers": {
+                    "elio": {
+                        "command": sys.executable,
+                        "args": [run_py],
+                    }
+                }
+            }
+        else:
+            exe = shutil.which("elio-mcp")
+            if not exe and getattr(sys, "executable", None):
+                alt = os.path.join(
+                    os.path.dirname(sys.executable),
+                    "elio-mcp" + (".exe" if os.name == "nt" else ""),
+                )
+                exe = alt if os.path.isfile(alt) else "elio-mcp"
+            else:
+                exe = exe or "elio-mcp"
+            if exe != "elio-mcp":
+                exe = os.path.normpath(os.path.abspath(exe))
+            config = {"mcpServers": {"elio": {"command": exe}}}
+        print(json.dumps(config, indent=2, ensure_ascii=False))
+        return
     mcp.run(transport="stdio")
 
 
