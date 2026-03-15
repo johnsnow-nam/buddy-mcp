@@ -5,20 +5,39 @@
 MCP server for ELIO board over Bluetooth serial (DC motors, servos, IO, sensors).  
 Requires Python 3.10+, ELIO board + Bluetooth dongle.
 
+**Run from a git clone using the project’s virtual environment.** The server is intended to be used by cloning this repo and running via `run.py`, which uses the project’s `.venv` (created automatically if missing). Do not run with global Python or other envs.
+
 ---
 
-## MCP setup (3 steps)
+## MCP setup (from git clone)
 
-1. **Clone** the repo.
-2. In the project folder, run:
+1. **Clone** the repo:
+   ```bash
+   git clone <repo-url> elio-mcp-server
+   cd elio-mcp-server
+   ```
+2. **Print MCP config** (uses project `.venv`; creates it if missing):
    ```bash
    python3 run.py --print-mcp-config
    ```
 3. **Paste** the printed JSON into your MCP config (e.g. Cursor `.cursor/mcp.json`, or your client’s `mcpServers`).
 
-Done. The server uses the project’s venv automatically; no global Python path needed.
+**MCP config example** (replace the path with your actual clone path, or use the output of step 2):
 
-**Alternative (pip):** `pip install elio-mcp-server` then use `"command": "elio-mcp"` in MCP config.
+```json
+{
+  "mcpServers": {
+    "elio": {
+      "command": "python3",
+      "args": ["/path/to/elio-mcp-server/run.py"]
+    }
+  }
+}
+```
+
+MCP starts the server via `run.py`; `run.py` ensures the server runs inside the project’s `.venv` only (no global Python).
+
+**Alternative (pip):** `pip install elio-mcp-server` then use `"command": "elio-mcp"` in MCP config (or run `elio-mcp --print-mcp-config` to get the full config).
 
 ---
 
