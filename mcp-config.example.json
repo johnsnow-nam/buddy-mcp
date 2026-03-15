@@ -2,7 +2,7 @@
   "mcpServers": {
     "elio": {
       "command": "python3",
-      "args": ["/프로젝트/절대경로/elio-mcp-server/run.py"]
+      "args": ["/path/to/elio-mcp-server/run.py"]
     }
   }
 }
