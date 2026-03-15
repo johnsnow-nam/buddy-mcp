@@ -37,8 +37,6 @@ Python 3.10+, ELIO 보드 + Bluetooth 동글 필요.
 
 MCP가 `run.py`로 서버를 띄우며, `run.py`가 반드시 프로젝트 `.venv` 안에서만 실행되도록 합니다 (전역 Python 사용 안 함).
 
-**pip 사용 시:** `pip install elio-mcp-server` 후 MCP 설정에 `"command": "elio-mcp"` 지정 (또는 `elio-mcp --print-mcp-config` 실행해서 나온 JSON 사용).
-
 ---
 
 ## 툴

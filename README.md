@@ -37,8 +37,6 @@ Requires Python 3.10+, ELIO board + Bluetooth dongle.
 
 MCP starts the server via `run.py`; `run.py` ensures the server runs inside the project’s `.venv` only (no global Python).
 
-**Alternative (pip):** `pip install elio-mcp-server` then use `"command": "elio-mcp"` in MCP config (or run `elio-mcp --print-mcp-config` to get the full config).
-
 ---
 
 ## Tools
