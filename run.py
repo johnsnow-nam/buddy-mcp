@@ -13,14 +13,17 @@ import subprocess
 import sys
 
 def main() -> None:
-    project_root = os.path.dirname(os.path.abspath(__file__))
-    run_py = os.path.normpath(os.path.abspath(__file__))
+    # 실행 중인 run.py 기준으로 경로 계산 (어디서 실행하든 동일한 절대 경로)
+    _run_py_abs = os.path.abspath(os.path.realpath(__file__))
+    project_root = os.path.dirname(_run_py_abs)
+    run_py = os.path.normpath(_run_py_abs)
 
     if "--print-mcp-config" in sys.argv:
+        # 로컬 클론 전용: 실행 중인 run.py 절대 경로를 기준으로 설정 출력
         config = {
             "mcpServers": {
                 "buddy": {
-                    "command": sys.executable,
+                    "command": "python3",
                     "args": [run_py],
                 }
             }
@@ -41,10 +44,14 @@ def main() -> None:
             cwd=project_root,
         )
         req = os.path.join(project_root, "requirements.txt")
+        # pip 업그레이드 안내가 stdout으로 나오면 MCP 스트림이 깨지므로 비활성화
+        env = os.environ.copy()
+        env["PIP_DISABLE_PIP_VERSION_CHECK"] = "1"
         subprocess.run(
             [python_exe, "-m", "pip", "install", "-r", req, "-q"],
             check=True,
             cwd=project_root,
+            env=env,
         )
 
     server_py = os.path.join(project_root, "server.py")

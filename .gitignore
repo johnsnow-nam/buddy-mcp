@@ -2,9 +2,19 @@
 .venv/
 venv/
 env/
+
+# Security / secrets (do not commit)
 .env
 .env.local
 .env.*.local
+.env.production
+*.pem
+*.key
+secrets.json
+*.secret
+credentials.*
+config.local.json
+config.local.*.json
 
 # Build / dist
 dist/
@@ -41,3 +51,8 @@ Thumbs.db
 *.log
 *.tmp
 .cache/
+
+# Local HTTPS certs and keys (--sse --https)
+.certs/
+*.crt
+*.cert

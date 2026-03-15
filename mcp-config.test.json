@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "buddy": {
+      "command": "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "args": [
+        "/Users/seokhee/mcp-servers/buddy-mcp/run.py"
+      ]
+    }
+  }
+}

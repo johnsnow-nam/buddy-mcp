@@ -4,10 +4,12 @@
 Buddy MCP Server – Bluetooth(시리얼)로 호환 보드와 통신하는 MCP 서버.
 환경 변수 BUDDY_PORT 에 시리얼 포트 지정 (예: /dev/cu.USB-Serial 또는 블루투스 SPP 포트).
 """
+import asyncio
 import json
 import os
-import shutil
+import subprocess
 import sys
+import tempfile
 
 # 프로젝트 루트를 path에 추가
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -62,6 +64,19 @@ def _disconnect():
     _protocol = None
 
 
+def _find_nrf_port() -> str | None:
+    """설명이 'nRF Connect USB CDC' 포함 또는 'nRF'로 시작하는 포트가 있으면 해당 device 경로 반환, 없으면 None."""
+    try:
+        for p in serial.tools.list_ports.comports():
+            desc = (p.description or "").strip()
+            lower = desc.lower()
+            if "nrf connect usb" in lower or lower.startswith("nrf"):
+                return p.device
+    except Exception:
+        pass
+    return None
+
+
 @mcp.tool()
 def buddy_list_ports() -> str:
     """현재 PC에 있는 시리얼(COM) 포트 목록을 반환합니다. Windows는 COM3·COM5, macOS는 /dev/cu.xxx, Linux는 /dev/ttyUSB0 등. 사용자가 동글/보드에 맞는 포트를 골라 buddy_connect(port)에 넣으면 됩니다."""
@@ -79,13 +94,33 @@ def buddy_list_ports() -> str:
 
 
 @mcp.tool()
-def buddy_connect(port: str) -> str:
-    """보드에 시리얼(블루투스 동글)로 연결합니다. port는 buddy_list_ports()로 확인한 값 사용. Windows: COM3, COM5 / macOS: /dev/cu.USB-Serial, /dev/cu.Bluetooth-Incoming-Port / Linux: /dev/ttyUSB0, /dev/ttyACM0"""
+def buddy_connect(port: str = "") -> str:
+    """보드에 시리얼(블루투스 동글)로 연결합니다. port를 비우거나 'auto'로 하면 nRF Connect USB CDC(또는 설명이 nRF로 시작하는) 포트가 있으면 자동 선택하고, 없으면 포트 목록을 안내합니다. 직접 지정 시: buddy_list_ports()로 확인한 값 사용. Windows: COM3, COM5 / macOS: /dev/cu.xxx / Linux: /dev/ttyUSB0, /dev/ttyACM0"""
     global _channel, _protocol
     _disconnect()
     port = port.strip()
-    if not port:
-        return "포트를 지정해 주세요. buddy_list_ports() 로 목록을 확인할 수 있습니다."
+    if not port or port.lower() == "auto":
+        auto_port = _find_nrf_port()
+        if auto_port:
+            port = auto_port
+            os.environ["BUDDY_PORT"] = port
+            try:
+                _get_protocol()
+                return f"연결됨: {port} (nRF 자동 선택)"
+            except Exception as e:
+                return f"연결 실패: {e}"
+        # nRF 없음 → 목록 안내
+        try:
+            ports = serial.tools.list_ports.comports()
+            if not ports:
+                return "nRF 포트를 찾을 수 없고, 사용 가능한 시리얼 포트도 없습니다. 동글을 연결한 뒤 다시 시도하세요."
+            lines = []
+            for p in ports:
+                desc = (p.description or "").strip() or "-"
+                lines.append(f"  {p.device}\t{desc}")
+            return "nRF 포트를 찾을 수 없습니다. 아래 목록에서 포트를 골라 buddy_connect(port)에 넣어 주세요.\n\n" + "\n".join(lines)
+        except Exception as e:
+            return f"포트 목록 조회 실패: {e}"
     os.environ["BUDDY_PORT"] = port
     try:
         _get_protocol()
@@ -154,35 +189,89 @@ def buddy_sensor_config(ultra: int = 0, line1: int = 0, line2: int = 0) -> str:
 
 
 def main():
-    """MCP 서버를 stdio 전송으로 실행합니다 (pip 설치 후 `buddy-mcp` 명령으로 호출)."""
+    """MCP 서버를 stdio 전송으로 실행합니다. 로컬 클론에서 run.py 로만 기동합니다."""
     if "--print-mcp-config" in sys.argv:
-        # 통합 launcher run.py 우선 (Mac/Windows/Linux 공통)
         project_root = os.path.dirname(os.path.abspath(__file__))
         run_py = os.path.normpath(os.path.join(project_root, "run.py"))
         if os.path.isfile(run_py):
             config = {
                 "mcpServers": {
                     "buddy": {
-                        "command": sys.executable,
+                        "command": "python3",
                         "args": [run_py],
                     }
                 }
             }
+            print(json.dumps(config, indent=2, ensure_ascii=False))
         else:
-            exe = shutil.which("buddy-mcp")
-            if not exe and getattr(sys, "executable", None):
-                alt = os.path.join(
-                    os.path.dirname(sys.executable),
-                    "buddy-mcp" + (".exe" if os.name == "nt" else ""),
-                )
-                exe = alt if os.path.isfile(alt) else "buddy-mcp"
-            else:
-                exe = exe or "buddy-mcp"
-            if exe != "buddy-mcp":
-                exe = os.path.normpath(os.path.abspath(exe))
-            config = {"mcpServers": {"buddy": {"command": exe}}}
-        print(json.dumps(config, indent=2, ensure_ascii=False))
+            print(
+                "이 서버는 pip 설치가 아닌 git 클론에서 run.py 로 실행하는 방식만 지원합니다.\n"
+                "프로젝트 루트에서: python3 run.py --print-mcp-config",
+                file=sys.stderr,
+            )
+            sys.exit(1)
         return
+
+    # Claude 등 "원격 MCP 서버 URL"용: SSE 서버로 기동 (URL로 접속 가능)
+    if "--sse" in sys.argv:
+        port = 8000
+        use_https = "--https" in sys.argv
+        argv = sys.argv
+        for i, a in enumerate(argv):
+            if a == "--port" and i + 1 < len(argv):
+                try:
+                    port = int(argv[i + 1])
+                except ValueError:
+                    pass
+                break
+        setattr(mcp.settings, "port", port)
+
+        if use_https:
+            # Claude는 HTTPS URL만 허용. 자체 서명 인증서로 로컬 HTTPS 제공
+            project_root = os.path.dirname(os.path.abspath(__file__))
+            certs_dir = os.path.join(project_root, ".certs")
+            os.makedirs(certs_dir, exist_ok=True)
+            cert_path = os.path.join(certs_dir, "cert.pem")
+            key_path = os.path.join(certs_dir, "key.pem")
+            if not os.path.isfile(cert_path) or not os.path.isfile(key_path):
+                subprocess.run(
+                    [
+                        "openssl", "req", "-x509", "-newkey", "rsa:2048",
+                        "-keyout", key_path, "-out", cert_path,
+                        "-days", "365", "-nodes",
+                        "-subj", "/CN=127.0.0.1",
+                        "-addext", "subjectAltName=IP:127.0.0.1,DNS:localhost",
+                    ],
+                    check=True,
+                    capture_output=True,
+                )
+            app = mcp.sse_app()
+            import uvicorn
+            config = uvicorn.Config(
+                app,
+                host="127.0.0.1",
+                port=port,
+                ssl_keyfile=key_path,
+                ssl_certfile=cert_path,
+                log_level="info",
+            )
+            server = uvicorn.Server(config)
+            print(f"Buddy MCP SSE (HTTPS): https://127.0.0.1:{port}/sse", file=sys.stderr)
+            asyncio.run(server.serve())
+        else:
+            print(f"Buddy MCP SSE: http://127.0.0.1:{port}/sse", file=sys.stderr)
+            mcp.run(transport="sse")
+        return
+
+    # 터미널에서 직접 실행하면 stdin에 엔터 등이 들어가 JSON 파싱 오류가 나므로 안내 후 종료
+    if sys.stdin.isatty():
+        print(
+            "This server is started by an MCP client (e.g. Cursor), not in a terminal.\n"
+            "To get MCP config: python3 run.py --print-mcp-config\n"
+            "For Claude (remote URL): python3 run.py --sse [--port 8000]",
+            file=sys.stderr,
+        )
+        sys.exit(0)
     mcp.run(transport="stdio")
 
 
